@@ -1,4 +1,4 @@
-import ocsclient
+from ocsclient import ocsclient
 
 print 'OmniPage Cloud Service Client Demo'
 
