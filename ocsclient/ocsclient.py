@@ -6,7 +6,7 @@ import os.path
 import xml.etree.ElementTree as ET
 import time
 
-class OCSClient:
+class OCSClient(object):
     ns = {'conv_svc': 'http://schemas.dcs.nuance.com/conversionservice'}
 
     def __init__(self, stsUrl, poxEndpointUrl):

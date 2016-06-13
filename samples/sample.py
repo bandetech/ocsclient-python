@@ -7,8 +7,8 @@ poxEndpoint = 'https://dcs-ncus.nuancecomputing.com/ConversionService.svc/pox'
 
 # Please set your account name and account Key here. Please refer https://portal.nuancecomputing.com/my-account-items
 
-#account_name = '<YOUR ACCOUNT NAME>'
-#account_key  = '<YOUR ACCOUNT KEY>'
+account_name = '<YOUR ACCOUNT NAME>'
+account_key  = '<YOUR ACCOUNT KEY>'
 
 # Please specify file path for input Image and output file
 inputImage = "<INPUT FILE PATH HERE>"

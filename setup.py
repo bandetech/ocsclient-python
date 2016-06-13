@@ -12,6 +12,5 @@ setup(
 	author_email = 'yoshihiko.aochi@nuance.com',
 	url = 'https://github.com/bandetech',
 	keywords = 'pip github python ocs omnipage cloud',
-	packages = find_packages(),
-	install_requires = ["poster", "twisted"]
+	packages = find_packages()
 )
