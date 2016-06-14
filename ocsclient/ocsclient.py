@@ -4,7 +4,7 @@ import json
 import base64
 import os.path
 import xml.etree.ElementTree as ET
-import time
+import sys
 
 class OCSClient(object):
     ns = {'conv_svc': 'http://schemas.dcs.nuance.com/conversionservice'}
@@ -22,8 +22,13 @@ class OCSClient(object):
     def __server_request_post(self, url, requestParams):
         data = urllib.urlencode(requestParams)
         request = urllib2.Request(url, data)
-        response = urllib2.urlopen(request)
-        return response.read()
+        try:
+            response = urllib2.urlopen(request)
+            return response.read()
+        except urllib2.HTTPError, e:
+            print 'HTTP return code :', e.code
+            print e.read()
+            sys.exit(-1)
 
     def __server_request(self, url, requestParams):
         authStr = "WRAP access_token=\""+self.access_token+"\""
@@ -34,8 +39,13 @@ class OCSClient(object):
             req = urllib2.Request(url+'?'+data, None, myHeaders)
         else:
             req = urllib2.Request(url, None, myHeaders)
-        response = urllib2.urlopen(req)
-        return response.read()
+        try:
+            response = urllib2.urlopen(req)
+            return response.read()
+        except urllib2.HTTPError, e:
+            print 'HTTP return code :', e.code
+            print e.read()
+            sys.exit(-1)
 
     # Get Job Types
     def getJobTypes(self):
@@ -80,7 +90,6 @@ class OCSClient(object):
 
     # Post Input File to Azure Storage
     def putInputFile(self, fileName, url):
-
         inputFile = open(fileName, "rb")
         inputData = inputFile.read()
 
@@ -157,10 +166,10 @@ class OCSClient(object):
     def cancelJob(self, jobId):
         url = self.poxEndpointUrl + "/CancelJob"
         request_values = {'jobId':jobId}
-        response =  self.__server_request(self.CANCEL_JOB_URL, request_values)
+        response =  self.__server_request(url, request_values)
 
     # Delete Job Data
     def deleteJobData(self, jobId, dataTypeFlag):
         url = self.poxEndpointUrl + "/DeleteJobData"
         request_values = {'jobId':jobId, 'dataTypeFlag':dataTypeFlag}
-        response =  self.__server_request(self.DELETE_JOB_DATA_URL, request_values)
+        response =  self.__server_request(url, request_values)
