@@ -1,5 +1,6 @@
 import urllib
 import urllib2
+import requests
 import json
 import base64
 import os.path
@@ -8,10 +9,14 @@ import sys
 
 class OCSClient(object):
     ns = {'conv_svc': 'http://schemas.dcs.nuance.com/conversionservice'}
-
     def __init__(self, stsUrl, poxEndpointUrl):
         self.stsUrl = stsUrl
         self.poxEndpointUrl = poxEndpointUrl
+        self.proxy=None
+        self.verifyPolicy = True
+
+    def setProxy(self, proxyServer, portNo):
+        self.proxy = {'https': proxyServer + ":" + str(portNo)}
 
     def getCredential(self, name, password):
         self.name = name
@@ -20,11 +25,9 @@ class OCSClient(object):
         self.access_token = urllib.unquote(self.__server_request_post(self.stsUrl, request_values).partition("=")[2])
 
     def __server_request_post(self, url, requestParams):
-        data = urllib.urlencode(requestParams)
-        request = urllib2.Request(url, data)
         try:
-            response = urllib2.urlopen(request)
-            return response.read()
+            r = requests.post(url, data=requestParams, proxies=self.proxy, verify=self.verifyPolicy)
+            return r.text
         except urllib2.HTTPError, e:
             print 'HTTP return code :', e.code
             print e.read()
@@ -34,14 +37,9 @@ class OCSClient(object):
         authStr = "WRAP access_token=\""+self.access_token+"\""
         myHeaders = {"Authorization": authStr, "Content-Type": "application/xml"}
 
-        if(requestParams is not None):
-            data = urllib.urlencode(requestParams)
-            req = urllib2.Request(url+'?'+data, None, myHeaders)
-        else:
-            req = urllib2.Request(url, None, myHeaders)
         try:
-            response = urllib2.urlopen(req)
-            return response.read()
+            r = requests.get(url, params=requestParams, headers=myHeaders, proxies=self.proxy, verify=self.verifyPolicy)
+            return r.text
         except urllib2.HTTPError, e:
             print 'HTTP return code :', e.code
             print e.read()
@@ -92,14 +90,13 @@ class OCSClient(object):
     def putInputFile(self, fileName, url):
         inputFile = open(fileName, "rb")
         inputData = inputFile.read()
-
-        opener = urllib2.build_opener(urllib2.HTTPHandler)
-        request = urllib2.Request(url, inputData)
-        request.add_header('Content-Length', '%d' % len(inputData))
-        request.add_header('Content-Type', 'application/octet-stream')
-        request.add_header('x-ms-blob-type', 'BlockBlob')
-        request.get_method = lambda: 'PUT'
-        return opener.open(request)
+        myHeaders ={
+            'Content-Length': '%d' % len(inputData),
+            'Content-Type' :'application/octet-stream',
+            'x-ms-blob-type': 'BlockBlob'
+        }
+        r = requests.put(url, data=inputData, headers=myHeaders, proxies=self.proxy, verify=self.verifyPolicy)
+        return r.text
 
     # Start Job
     def startJob(self, jobId, conversionParams):
@@ -156,10 +153,9 @@ class OCSClient(object):
 
     # Store Result
     def downloadFile(self, url, fileName):
-        resultFile = urllib.urlopen(url)
+        r = requests.get(url, proxies=self.proxy, verify=self.verifyPolicy)
         localFile = open(fileName, 'wb')
-        localFile.write(resultFile.read())
-        resultFile.close()
+        localFile.write(r.content)
         localFile.close()
 
     # Cancel Job
