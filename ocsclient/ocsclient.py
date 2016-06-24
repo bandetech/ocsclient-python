@@ -18,6 +18,9 @@ class OCSClient(object):
     def setProxy(self, proxyServer, portNo):
         self.proxy = {'https': proxyServer + ":" + str(portNo)}
 
+    def setVerification(self, verification):
+        self.verifyPolicy = verification
+
     def getCredential(self, name, password):
         self.name = name
         self.password = password

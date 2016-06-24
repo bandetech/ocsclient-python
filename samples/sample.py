@@ -15,6 +15,10 @@ inputImage = "<INPUT FILE PATH HERE>"
 outputFile = "<OUTPUT FILE PATH HERE>"
 
 client = ocsclient.OCSClient(stsEndpoint, poxEndpoint)
+
+# If your environment has proxy, please set your proxy server and port number here.
+#ocsclient.setProxy('<hostname>', <portnum>)
+
 client.getCredential(account_name, account_key)
 
 print client.getJobTypes()
